@@ -22,6 +22,11 @@ Then get the necesary packages... ``` pip install fastapi uvicorn websockets ```
 ## testing your setup
 You can do a test by navigating to your website (whether its a domain or ip - make sure you have the right port!) and checking if the widget builder screen appears - if it does, you should be all set! It's not harmful to check if the widget is functioning properly by putting it into streamlabs either!
 
+## common issues
+- If your pc complains about the port you are using, just set it to something random at the very bottom of the code, like 6789
+- If your page won't load on https (only http) you need to include a ssl certificate in uvicorn.run() at the bottom of the code (google how to do this)
+- If your browser complains about not being able to connect to wss over http you need to add a ssl certificate, similar to seen above
+
 ## need more help?
 Feel free to send me a DM on discord: @cosmatic_
 
