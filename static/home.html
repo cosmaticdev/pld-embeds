@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embed Creator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 500px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .options,
+        .preview,
+        .output {
+            margin-bottom: 20px;
+        }
+
+        .preview {
+            text-align: center;
+            overflow-wrap: break-word;
+        }
+
+        .output {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .output input {
+            width: 80%;
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        .output button {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(18px);
+        }
+
+        /* Social Icons */
+        .icon-links {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-links a {
+            color: #333;
+            font-size: 24px;
+            text-decoration: none;
+        }
+
+        .icon-links a:hover {
+            color: #000;
+        }
+
+        .icon-links img {
+            width: 24px;
+            /* Match the size of the GitHub icon */
+            height: 24px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Embed Creator</h2>
+
+        <!-- Options -->
+        <div class="options">
+            <label>Roblox id:
+                <input type="number" id="robloxID" value="" min="">
+            </label><br>
+
+            <label>Rounded Border:
+                <label class="toggle">
+                    <input type="checkbox" id="rounded">
+                    <span class="slider"></span>
+                </label>
+            </label><br>
+
+            <label>Border Color:
+                <input type="color" id="borderColor" value="#000000">
+            </label><br>
+
+            <label>Background Color:
+                <input type="color" id="bgColor" value="#ffffff">
+            </label><br>
+
+            <label>Border Width (px):
+                <input type="number" id="borderWidth" value="1" min="0">
+            </label><br>
+
+            <label>Text Size (px):
+                <input type="number" id="textSize" value="16" min="10">
+            </label><br>
+
+            <label>Text Font:
+                <select id="textFont">
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Tahoma">Tahoma</option>
+                </select>
+            </label><br>
+
+            <label>Horizontal Padding (px):
+                <input type="number" id="hPadding" value="10" min="0">
+            </label><br>
+
+            <label>Vertical Padding (px):
+                <input type="number" id="vPadding" value="10" min="0">
+            </label><br>
+
+            <label>Show All Time Max:
+                <label class="toggle">
+                    <input type="checkbox" id="showAllTimeMax" onchange="updatePreview()">
+                    <span class="slider"></span>
+                </label>
+            </label><br>
+
+            <label>Show Most Recent:
+                <label class="toggle">
+                    <input type="checkbox" id="showMostRecent" onchange="updatePreview()">
+                    <span class="slider"></span>
+                </label>
+            </label><br>
+
+            <label id="nameOptionLabel">Show:
+                <select id="showUsername" onchange="updatePreview()">
+                    <option value="username">Username</option>
+                    <option value="displayName">Display Name</option>
+                </select>
+            </label>
+
+
+        </div>
+
+        <!-- Preview -->
+        <div class="preview" id="preview">
+            Preview Text
+        </div>
+
+        <!-- Generated Link -->
+        <div class="output">
+            <input type="text" id="generatedLink" readonly>
+            <button onclick="copyLink()">Copy</button>
+        </div>
+
+        <!-- Icon Links -->
+        <div class="icon-links">
+            <span>This project is open-source on GitHub</span>
+            <a href="https://www.github.com/cosmaticdev/pld-embeds" target="_blank" class="fab fa-github"
+                title="GitHub">
+            </a>
+            <a href="https://www.roblox.com/users/id/temp" target="_blank" title="Roblox">
+                <img src="https://img.icons8.com/?size=100&id=97652&format=png&color=000000" alt="Roblox Icon">
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const preview = document.getElementById("preview");
+        const generatedLink = document.getElementById("generatedLink");
+        const showAllTimeMax = document.getElementById("showAllTimeMax");
+        const showMostRecent = document.getElementById("showMostRecent");
+
+        // Update preview
+        function updatePreview() {
+            const rounded = document.getElementById("rounded").checked;
+            const borderColor = document.getElementById("borderColor").value;
+            const bgColor = document.getElementById("bgColor").value;
+            const borderWidth = document.getElementById("borderWidth").value;
+            const textSize = document.getElementById("textSize").value;
+            const textFont = document.getElementById("textFont").value;
+            const hPadding = document.getElementById("hPadding").value;
+            const vPadding = document.getElementById("vPadding").value;
+            const showAllTimeMax = document.getElementById("showAllTimeMax").checked;
+            const showMostRecent = document.getElementById("showMostRecent").checked;
+            const showUsername = document.getElementById("showUsername").value;
+
+            const robloxID = document.getElementById("robloxID").value;
+
+
+
+            // Set preview text based on selected options
+            let previewText = "";
+            if (showAllTimeMax) previewText += "<maximum>";
+            if (showAllTimeMax && showMostRecent) previewText += " from " + `<${showUsername}>` + " | ";
+            if (showMostRecent) previewText += "<recent>";
+            if ((showAllTimeMax || showMostRecent) && showUsername) previewText += " from ";
+            if (showUsername) previewText += `<${showUsername}>`;
+            preview.innerText = previewText || "Preview Text";
+
+            // Apply styles to preview
+            preview.style.borderRadius = rounded ? "12px" : "0px";
+            preview.style.border = `${borderWidth}px solid ${borderColor}`;
+            preview.style.backgroundColor = bgColor;
+            preview.style.fontSize = `${textSize}px`;
+            preview.style.fontFamily = textFont;
+            preview.style.padding = `${vPadding}px ${hPadding}px`;
+
+            // Generate URL
+            const params = new URLSearchParams({
+                robloxID,
+                rounded,
+                borderColor,
+                bgColor,
+                borderWidth,
+                textSize,
+                textFont,
+                hPadding,
+                vPadding,
+                showAllTimeMax,
+                showMostRecent,
+                showUsername
+            });
+            generatedLink.value = window.location.origin + `/widget?${params.toString()}`;
+        }
+
+        // Copy link to clipboard
+        function copyLink() {
+            generatedLink.select();
+            document.execCommand("copy");
+            alert("Link copied!");
+        }
+
+        // Add event listeners for all inputs
+        document.querySelectorAll("input, select").forEach(el => el.addEventListener("input", updatePreview));
+
+        // Initial preview update
+        updatePreview();
+    </script>
+
+</body>
+
+</html>
