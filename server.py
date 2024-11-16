@@ -1,8 +1,11 @@
-import json, ssl, os, websockets, asyncio
+import asyncio
+import json
+import websockets
 from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+import ssl, os
 
 app = FastAPI()
 
@@ -29,6 +32,7 @@ async def recieve(data, idto):
             "amount": data["amount"],
             "id": data["sender"]["id"],
             "username": data["sender"]["username"],
+            "displayname": data["sender"]["displayName"],
         }
 
     stats["transactions"] += 1
@@ -43,7 +47,17 @@ def add_user(id):
     if str(id) in stats["users"]:
         return
     stats["users"].update(
-        {id: {"total": 0, "highest": {"amount": 0, "id": 0, "username": "none"}}}
+        {
+            id: {
+                "total": 0,
+                "highest": {
+                    "amount": 0,
+                    "id": 0,
+                    "username": "none",
+                    "displayname": "none",
+                },
+            }
+        }
     )
 
     stats["userstracked"] += 1
@@ -100,7 +114,6 @@ async def websocket_handler(websocket: WebSocket, id: str):
             pass
 
 
-
 @app.get("/{page_name}")
 async def get_page(page_name: str):
     file_path = f"static/{page_name}.html"
@@ -108,17 +121,17 @@ async def get_page(page_name: str):
         return HTMLResponse(open(file_path).read())
     return HTMLResponse("Page not found", status_code=404)
 
+
 @app.get("/")
 async def get_home():
     return HTMLResponse(open("static/home.html").read())
+
 
 # Static file serving
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 
-
-
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run(app, host="0.0.0.0", port=6789)
