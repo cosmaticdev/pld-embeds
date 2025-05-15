@@ -2,8 +2,8 @@ import asyncio
 import json
 import websockets
 from pathlib import Path
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import ssl, os
 
@@ -112,6 +112,14 @@ async def websocket_handler(websocket: WebSocket, id: str):
             await websocket.close()
         except:
             pass
+
+
+@app.get("/static/{file_path:path}")
+async def serve_static(file_path: str):
+    file_location = Path("static") / file_path
+    if file_location.exists() and file_location.is_file():
+        return FileResponse(file_location)
+    raise HTTPException(status_code=404, detail="File not found")
 
 
 @app.get("/{page_name}")
